@@ -1,0 +1,11 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "./Npm/NpmV1"
+        },
+        {
+            "path": "./NuGet/NuGetV1"
+        }
+    ]
+}
