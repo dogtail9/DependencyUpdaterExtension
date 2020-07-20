@@ -1,0 +1,226 @@
+schedules:
+  - cron: "0 0 * * *"
+    displayName: Daily midnight build
+    always: true
+    branches:
+      include:
+      - main
+      
+trigger:
+  - main
+  - feature/*
+    
+resources:
+  - repo: self
+    
+parameters:
+  - name: image
+    displayName: Pool Image
+    type: string
+    default: ubuntu-latest
+    values:
+    - windows-latest
+    - vs2017-win2016
+    - ubuntu-latest
+    - ubuntu-16.04
+    - macOS-latest
+    - macOS-10.14
+      
+  - name: ForceUpdateDependencies
+    displayName: Force Dependency Update
+    type: boolean
+    default: false
+
+stages:
+  - stage: Build
+    dependsOn: []
+    condition: and(or(eq(${{ parameters.ForceUpdateDependencies }}, ${{ false }}), in(variables['Build.Reason'], 'IndividualCI', 'BatchedCI')), ne(variables['Build.Reason'], 'Schedule'))
+    displayName: Build
+    
+    jobs:
+    - job:
+      dependsOn: []
+      displayName: Build
+      
+      pool:
+        vmImage: ${{ parameters.image }}
+        
+      steps:
+      - task: Npm@1
+        inputs:
+          command: 'install'
+          
+      - script: |
+          tsc -b -v
+          
+      - task: TfxInstaller@3
+        inputs:
+          version: 'v0.7.x'
+          
+      - task: QueryAzureDevOpsExtensionVersion@3
+        name: QueryVersion
+        inputs:
+          connectTo: 'VsTeam'
+          connectedServiceName: 'Marketplace'
+          publisherId: 'Dogtail'
+          extensionId: 'dependency-updater-tasks'
+          versionAction: 'Patch'
+          setBuildNumber: 'true'
+          
+      - task: PackageAzureDevOpsExtension@3
+        inputs:
+          rootFolder: 
+          outputPath: '$(build.artifactstagingdirectory)/VSIX'
+          extensionVersion: '$(QueryVersion.Extension.Version)'
+          updateTasksVersion: true
+          extensionVisibility: 'private'
+            
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(build.artifactstagingdirectory)/VSIX'
+          artifact: 'VSIX'
+          publishLocation: 'pipeline'
+      
+  - stage: Deploy
+    dependsOn:
+    - Build
+    condition: and(or(eq(${{ parameters.ForceUpdateDependencies }}, ${{ false }}), in(variables['Build.Reason'], 'IndividualCI', 'BatchedCI')), ne(variables['Build.Reason'], 'Schedule'), ne(variables['Build.Reason'], 'PullRequest')) 
+    displayName: Deploy
+
+    jobs:
+    - deployment:
+      dependsOn: 
+      displayName: Deploy
+
+      pool:
+        vmImage: ${{ parameters.image }}
+      environment: Test
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: TfxInstaller@3
+                inputs:
+                  version: 'v0.7.x'
+
+              - task: PublishAzureDevOpsExtension@3
+                inputs:
+                  connectTo: 'VsTeam'
+                  connectedServiceName: 'Marketplace'
+                  fileType: 'vsix'
+                  vsixFile: '$(Pipeline.Workspace)/VSIX/*.vsix'
+                  updateTasksVersion: false
+                  extensionVisibility: 'private'
+
+              - task: IsAzureDevOpsExtensionValid@3
+                inputs:
+                  connectTo: 'VsTeam'
+                  connectedServiceName: 'Marketplace'
+                  method: 'vsix'
+                  vsixFile: '$(Pipeline.Workspace)/VSIX/*.vsix'
+                
+              - task: ShareAzureDevOpsExtension@3
+                inputs:
+                  connectTo: 'VsTeam'
+                  connectedServiceName: 'Marketplace'
+                  method: 'vsix'
+                  vsixFile: '$(Pipeline.Workspace)/VSIX/*.vsix'
+                  accounts: 'dogtail'
+
+              - task: InstallAzureDevOpsExtension@3
+                inputs:
+                  connectTo: 'VsTeam'
+                  connectedServiceName: 'Marketplace'
+                  method: 'vsix'
+                  vsixFile: '$(Pipeline.Workspace)/VSIX/*.vsix'
+                  accounts: 'https://dogtail.visualstudio.com'
+
+  - stage: UpdateDependencies 
+    dependsOn: []
+    condition: or(eq(${{ parameters.ForceUpdateDependencies }}, ${{ true }}), eq(variables['Build.Reason'], 'Schedule'))
+    displayName: Update Dependencies
+    
+    jobs:
+    - job:
+      dependsOn: []
+      displayName: Update Npm and NuGet
+      pool:
+        vmImage: ${{ parameters.image }}
+      steps:
+      - checkout: self
+        clean: true
+        persistCredentials: true
+
+      - script: | 
+          git config --global user.email 'dependencybot@dogtail.se'
+          git config --global user.name 'DependencyBot'
+          git checkout -b dependencybot/$(Build.BuildNumber)
+        displayName: Checkout 'dependencybot/$(Build.BuildNumber)'
+
+      - task: NpmUpdater@0
+        name: NpmUpdater
+        inputs:
+          Path: TestData
+      
+      - script: |
+          git add $(NpmUpdater.Files)
+          git commit -m "Update Npm Dependencies"
+        displayName: Commit Npm Updates
+
+      - task: NuGetUpdater@0
+        name: NuGetUpdater
+        inputs:
+          Path: TestData
+
+      - script: |
+          git add $(NuGetUpdater.Files)
+          git commit -m "Update NuGet Dependencies"
+        displayName: Commit NuGet Updates
+
+      - script: git push --set-upstream origin dependencybot/$(Build.BuildNumber)
+        displayName: Push Updates
+
+      - powershell: |
+          $url = "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/git/repositories/$(Build.Repository.Name)/pullrequests?api-version=5.0"
+          $description = "# DepenencyBot updated the following dependencies`r`n`r`n $(NpmUpdater.Markdown) $(NuGetUpdater.Markdown)";
+          if($description.length -gt 4000) {
+              $description = $description[0..3995] -join ""
+              $description += " ..."
+              write-host "truncated"
+          }
+          $body = @{
+                  sourceRefName = "refs/heads/dependencybot/$(Build.BuildNumber)"
+                  targetRefName = "$(Build.SourceBranch)"
+                  title         = "DependencyBot: Update Dependencies"
+                  description   = $description
+                  reviewers     = ""
+                  isDraft       = "false"
+                  WorkItemRefs  = ""
+          }
+          $head = @{ Authorization = "Bearer $env:ACCESSTOKEN" }
+          $jsonBody = ConvertTo-Json $body
+          Write-Host $head
+          Write-Host $jsonBody
+          Write-Host $url
+          Write-Host $description
+          try {
+              $response = Invoke-RestMethod -Uri $url -Method Post -Headers $head -Body $jsonBody -ContentType "application/json;charset=UTF-8"
+              if ($Null -ne $response) {
+                  write-host $response
+                  # If the response not null - the create PR succeeded
+                  $pullRequestId = $response.pullRequestId
+                  Write-Host "*************************"
+                  Write-Host "******** Success ********"
+                  Write-Host "*************************"
+                  Write-Host "Pull Request $pullRequestId created."
+              }
+          }
+          catch {
+              Write-Error $_
+              Write-Error $_.Exception.Message
+          }
+        displayName: Create Pull Request
+          
+        env:
+          ACCESSTOKEN: $(System.AccessToken)
+          
