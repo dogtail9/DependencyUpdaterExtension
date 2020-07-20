@@ -1,0 +1,6 @@
+node_modules/
+built/
+.taskkey
+*.vsix
+*.tgz
+*.tsbuildinfo

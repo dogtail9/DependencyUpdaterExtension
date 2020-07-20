@@ -1,0 +1,83 @@
+{
+    "manifestVersion": 1,
+    "id": "dependency-updater-tasks",
+    "name": "Dogtail Dependency Updater Tasks",
+    "version": "0.0.1",
+    "publisher": "Dogtail",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "description": "Azure Pipelines tasks to update Npm and NuGet packages.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "extension-icon.png"
+    },
+    "files": [
+        {
+            "path": "built/Npm/NpmV1/",
+            "packagePath": "Npm/NpmV1/Npm/NpmV1/"
+        },
+        {
+            "path": "built/Common/CommonV1/",
+            "packagePath": "Npm/NpmV1/Common/CommonV1/"
+        },
+        {
+            "path": "node_modules",
+            "packagePath": "Npm/NpmV1/node_modules"
+        },
+        {
+            "path":"Npm/NpmV1/icon.png",
+            "packagePath":"Npm/NpmV1/icon.png"
+        },
+        {
+            "path":"Npm/NpmV1/task.json",
+            "packagePath":"Npm/NpmV1/task.json"
+        },
+        {
+            "path": "built/NuGet/NuGetV1/",
+            "packagePath": "NuGet/NuGetV1/NuGet/NuGetV1/"
+        },
+        {
+            "path": "built/Common/CommonV1/",
+            "packagePath": "NuGet/NuGetV1/Common/CommonV1/"
+        },
+        {
+            "path": "node_modules",
+            "packagePath": "NuGet/NuGetV1/node_modules"
+        },
+        {
+            "path":"NuGet/NuGetV1/icon.png",
+            "packagePath":"NuGet/NuGetV1/icon.png"
+        },
+        {
+            "path":"NuGet/NuGetV1/task.json",
+            "packagePath":"NuGet/NuGetV1/task.json"
+        }
+    ],
+    "contributions": [
+        {
+            "id": "2744a226-8073-4fe2-b86c-d2c9cb6353b9",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "Npm"
+            }
+        },
+        {
+            "id": "69137d5e-0acd-4df2-9513-5f7bae478616",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "NuGet"
+            }
+        }
+    ]
+}

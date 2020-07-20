@@ -1,0 +1,10 @@
+{
+    "extends": "../../tsconfig-base.json",
+    "compilerOptions": {
+        "outDir": "../../built/NuGet/NuGetV1",
+        "rootDir": "."
+    },
+    "references": [
+        { "path": "../../Common/CommonV1" }
+      ]
+}

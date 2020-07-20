@@ -1,0 +1,41 @@
+{
+  "id": "3ae21815-ce97-4f5f-abd0-afc3394409bf",
+  "name": "NpmUpdater",
+  "friendlyName": "Npm Updater",
+  "description": "Updates all npm packages in the specified folder.",
+  "category": "Deploy",
+  "author": "Dogtail9",
+  "version": {
+    "Major": 0,
+    "Minor": 0,
+    "Patch": 1,
+    "IsTest": false
+  },
+  "demands": [],
+  "groups": [],
+  "inputs": [
+    {
+      "name": "Path",
+      "type": "filePath",
+      "label": "The root path to start looking for package.json files.",
+      "defaultValue": "",
+      "required": true
+    }
+  ],
+  "OutputVariables": [
+    {
+      "name": "Markdown",
+      "description": "Updated files and packages in Markdown."
+    },
+    {
+      "name": "Files",
+      "description": "Updated files in a space separated list. This variable can be used after 'git add' in a script in a pipeline."
+    }
+  ],
+  "instanceNameFormat": "Update npm packages in $(Path)",
+  "execution": {
+    "Node10": {
+      "target": "Npm/NpmV1/src/index.js"
+    }
+  }
+}

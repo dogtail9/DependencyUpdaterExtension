@@ -1,0 +1,64 @@
+{
+    "name": "DependencyUpdaterExtension",
+    "dockerFile": "Dockerfile",
+    // Set *default* container specific settings.json values on container create.
+    "settings": {
+        "terminal.integrated.shell.linux": "/opt/microsoft/powershell/7/pwsh",
+        "editor.fontFamily": "'Cascadia Code PL', Consolas, 'Courier New', monospace",
+        "window.menuBarVisibility": "visible",
+        "explorer.openEditors.visible": 0,
+        "workbench.colorTheme": "Default Dark+",
+        "cSpell.words": [
+            "linkcode",
+            "codespaces",
+            "devcontainer",
+            "dogtail",
+            "Cascadia",
+            "Consolas",
+            "pwsh",
+            "monospace",
+            "streetsidesoftware",
+            "mhutchie",
+            "davidanson",
+            "markdownlint",
+            "azuretools",
+            "onlyutkarsh",
+            "vsix",
+            "editorconfig",
+            "noninteractive",
+            "CLIs",
+            "autoremove",
+            "dpkg",
+            "procps",
+            "Repos",
+            "taskkey",
+            "tsbuildinfo",
+            "dependencyupdaterextension",
+            "Hanselman",
+            "dependencybot",
+            "toolrunner",
+            "Christer",
+            "Eriksson",
+            "embedme"
+        ]
+    },
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "ms-vscode.vs-keybindings",
+        "streetsidesoftware.code-spell-checker",
+        "mhutchie.git-graph",
+        "davidanson.vscode-markdownlint",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.powershell-preview",
+        "ms-vscode.vscode-typescript-tslint-plugin",
+        "onlyutkarsh.vsix-viewer",
+        "editorconfig.editorconfig",
+        "ms-azure-devops.azure-pipelines"
+    ],
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+    // Use 'postCreateCommand' to run commands after the container is created.
+    // "postCreateCommand": "npm install"
+    // Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
+    // "remoteUser": "node"
+}
