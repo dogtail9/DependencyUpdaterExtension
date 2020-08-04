@@ -8,6 +8,7 @@
         "window.menuBarVisibility": "visible",
         "explorer.openEditors.visible": 0,
         "workbench.colorTheme": "Default Dark+",
+        "workbench.iconTheme": "material-icon-theme",
         "cSpell.words": [
             "linkcode",
             "codespaces",
@@ -53,7 +54,8 @@
         "ms-vscode.vscode-typescript-tslint-plugin",
         "onlyutkarsh.vsix-viewer",
         "editorconfig.editorconfig",
-        "ms-azure-devops.azure-pipelines"
+        "ms-azure-devops.azure-pipelines",
+        "pkief.material-icon-theme"
     ],
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [],
