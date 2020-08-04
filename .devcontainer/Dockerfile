@@ -29,14 +29,15 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
 COPY dogtail.psm1 /root/.config/powershell/PoshThemes/dogtail.psm1
 RUN pwsh -c 'Install-Module posh-git -Scope CurrentUser -Force'
 RUN pwsh -c 'Install-Module oh-my-posh -Scope CurrentUser -Force'
-RUN pwsh -c 'Install-Module -Name PSReadLine -AllowPrerelease -Scope CurrentUser -Force -SkipPublisherCheck'
+RUN pwsh -c 'Install-Module -Name PSReadLine -RequiredVersion 2.1.0-beta2 -AllowPrerelease -Force'
 RUN \
     ## Create PS profile
     pwsh -c 'New-Item -Path $profile -ItemType File -Force' \
     ## Add alias
     && pwsh -c "'Import-Module posh-git' | Out-File -FilePath \$profile" \
     && pwsh -c "Add-Content -Path \$profile -Value 'Import-Module oh-my-posh'" \
-    && pwsh -c "Add-Content -Path \$profile -Value 'Set-Theme dogtail'"
+    && pwsh -c "Add-Content -Path \$profile -Value 'Set-Theme dogtail'" \
+    && pwsh -c "Add-Content -Path \$profile -Value 'Set-PSReadLineOption -PredictionSource History'"
 
 # Install Developer Tools
 RUN npm install -g typescript
