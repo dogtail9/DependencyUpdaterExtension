@@ -36,7 +36,8 @@ RUN \
     ## Add alias
     && pwsh -c "'Import-Module posh-git' | Out-File -FilePath \$profile" \
     && pwsh -c "Add-Content -Path \$profile -Value 'Import-Module oh-my-posh'" \
-    && pwsh -c "Add-Content -Path \$profile -Value 'Set-Theme dogtail'"
+    && pwsh -c "Add-Content -Path \$profile -Value 'Set-Theme dogtail'" \
+    && pwsh -c "Add-Content -Path \$profile -Value 'Set-PSReadLineOption -PredictionSource History'"
 
 # Install Developer Tools
 RUN npm install -g typescript
