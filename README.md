@@ -42,6 +42,7 @@ This file adds the VSCode extension and sets the default shell in the VSCode ter
         "window.menuBarVisibility": "visible",
         "explorer.openEditors.visible": 0,
         "workbench.colorTheme": "Default Dark+",
+        "workbench.iconTheme": "material-icon-theme",
         "cSpell.words": [
             "linkcode",
             "codespaces",
@@ -87,7 +88,8 @@ This file adds the VSCode extension and sets the default shell in the VSCode ter
         "ms-vscode.vscode-typescript-tslint-plugin",
         "onlyutkarsh.vsix-viewer",
         "editorconfig.editorconfig",
-        "ms-azure-devops.azure-pipelines"
+        "ms-azure-devops.azure-pipelines",
+        "pkief.material-icon-theme"
     ],
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [],
@@ -128,6 +130,7 @@ RUN apt-get update \
     && apt-get install -y apt-transport-https \
     && apt-get update \
     && apt-get install -y dotnet-sdk-3.1 \
+    && apt-get install -y dotnet-sdk-5.0 \
     # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
@@ -138,14 +141,15 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
 COPY dogtail.psm1 /root/.config/powershell/PoshThemes/dogtail.psm1
 RUN pwsh -c 'Install-Module posh-git -Scope CurrentUser -Force'
 RUN pwsh -c 'Install-Module oh-my-posh -Scope CurrentUser -Force'
-RUN pwsh -c 'Install-Module -Name PSReadLine -AllowPrerelease -Scope CurrentUser -Force -SkipPublisherCheck'
+RUN pwsh -c 'Install-Module -Name PSReadLine -RequiredVersion 2.1.0-beta2 -AllowPrerelease -Force'
 RUN \
     ## Create PS profile
     pwsh -c 'New-Item -Path $profile -ItemType File -Force' \
     ## Add alias
     && pwsh -c "'Import-Module posh-git' | Out-File -FilePath \$profile" \
     && pwsh -c "Add-Content -Path \$profile -Value 'Import-Module oh-my-posh'" \
-    && pwsh -c "Add-Content -Path \$profile -Value 'Set-Theme dogtail'"
+    && pwsh -c "Add-Content -Path \$profile -Value 'Set-Theme dogtail'" \
+    && pwsh -c "Add-Content -Path \$profile -Value 'Set-PSReadLineOption -PredictionSource History'"
 
 # Install Developer Tools
 RUN npm install -g typescript
@@ -329,7 +333,8 @@ npm install @types/node @types/q @types/xml2js --save-dev
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -b -v",
     "clean": "tsc -b --clean",
-    "package": "tsc -b -v && tfx extension create --manifest-globs vss-extension.json"
+    "package": "tsc -b -v && tfx extension create --manifest-globs vss-extension.json",
+    "embedme": "embedme ./README.md"
   },
   "repository": {
     "type": "git",
