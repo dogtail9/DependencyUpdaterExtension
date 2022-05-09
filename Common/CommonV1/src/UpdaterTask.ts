@@ -41,7 +41,9 @@ export class UpdaterTask {
             const changedFiles = this.resultGenerator.getFiles(files);
 
             // Set the output variable for files
-            tl.setVariable('Files', changedFiles);
+            const isSecret = false;
+            const isOutput = true;
+            tl.setVariable('Files', changedFiles, isSecret, isOutput);
 
             // Set a succeeded result for the task
             tl.setResult(tl.TaskResult.Succeeded, dependencyPath, true);
