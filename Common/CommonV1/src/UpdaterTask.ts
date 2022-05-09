@@ -34,15 +34,18 @@ export class UpdaterTask {
             // Get Markdown string for updated dependencies
             const markdown = this.resultGenerator.getMarkdown(files);
 
+            // Settings for output variables
+            const isSecret = false;
+            const isOutput = true;
+
             // Set the output variable for Markdown
-            tl.setVariable('Markdown', markdown);
+            tl.setVariable('Markdown', markdown, isSecret, isOutput);
 
             // Get space separated file list of updated files
             const changedFiles = this.resultGenerator.getFiles(files);
 
             // Set the output variable for files
-            const isSecret = false;
-            const isOutput = true;
+            
             tl.setVariable('Files', changedFiles, isSecret, isOutput);
 
             // Set a succeeded result for the task
