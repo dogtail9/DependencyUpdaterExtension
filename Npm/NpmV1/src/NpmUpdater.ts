@@ -99,6 +99,9 @@ export class NpmUpdater implements IUpdater {
             // Add the dependency name to the npm command
             npm.arg(dependency);
 
+             // Add argument '--save' to the npm command
+            npm.arg('--save');
+
             // Set the working directory for the npm command
             const options = { cwd: workingDirectory } as tr.IExecOptions;
 
